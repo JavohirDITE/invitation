@@ -128,47 +128,25 @@ img { display: block; max-width: 100%; }
 .env-caption .line1 { display: block; font-size: clamp(34px, 10vw, 64px); }
 .env-caption .line2 { display: block; font-size: clamp(28px, 8.5vw, 54px); margin-top: 2px; }
 
-/* Сургучная печать по центру — «настоящая», кривоватая из воска */
+/* Сургучная печать по центру — картинка как есть (без обрезки и перекраски) */
 .seal {
   position: absolute; left: 50%; top: 50%;
-  transform: translate(-50%, -50%) rotate(-4deg);
-  width: clamp(98px, 27vw, 132px); height: clamp(98px, 27vw, 132px);
-  /* неровная восковая форма */
-  border-radius: 49% 51% 47% 53% / 52% 48% 53% 47%;
-  background:
-    radial-gradient(circle at 38% 32%, #a93547, var(--c-accent) 42%, #6f1f29 80%, #5a1822 100%);
-  box-shadow:
-    inset 0 3px 6px rgba(255,255,255,.22),
-    inset 0 -6px 12px rgba(0,0,0,.5),
-    inset 0 0 0 2px rgba(255,255,255,.08),
-    0 12px 26px -8px rgba(0,0,0,.55);
+  transform: translate(-50%, -50%);
+  width: clamp(160px, 46vw, 250px); height: clamp(160px, 46vw, 250px);
+  background-image: url('../../Surguch.png');
+  background-size: contain; background-position: center; background-repeat: no-repeat;
   z-index: 10;
-  display: flex; align-items: center; justify-content: center;
-  color: #ffe9dd; font-family: var(--f-display);
-  font-size: clamp(14px, 4vw, 18px); letter-spacing: .14em; text-transform: uppercase; text-align: center;
-  text-shadow: 0 1px 1px rgba(0,0,0,.45);
   pointer-events: none;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,.4));
   animation: sealBreathe 2.8s ease-in-out infinite;
   transition: transform .45s var(--ease), opacity .45s var(--ease);
 }
-/* вдавленный ободок-кайма по краю воска */
-.seal::before {
-  content: ""; position: absolute; inset: 6px;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.18), inset 0 2px 4px rgba(0,0,0,.3);
-}
-/* тиснёное пунктирное кольцо */
-.seal::after {
-  content: ""; position: absolute; inset: 12px;
-  border-radius: inherit;
-  border: 1px dashed rgba(255,233,221,.5);
-}
-/* мягкое «дыхание» без glow — приглашает нажать */
+/* мягкое «дыхание» — приглашает нажать */
 @keyframes sealBreathe {
-  0%, 100% { transform: translate(-50%, -50%) rotate(-4deg) scale(1); }
-  50%      { transform: translate(-50%, -50%) rotate(-4deg) scale(1.035); }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.035); }
 }
-.envelope-stage.is-open .seal { transform: translate(-50%, -50%) rotate(-4deg) scale(0); opacity: 0; animation: none; }
+.envelope-stage.is-open .seal { transform: translate(-50%, -50%) scale(0); opacity: 0; animation: none; }
 
 /* ============================================================
    2. HERO (после конверта)
