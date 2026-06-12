@@ -8,159 +8,48 @@
   /* -------- 0. Применить палитру из URL (для конструктора demo) -------- */
   applyPaletteFromURL();
 
-  /* -------- 1. Конверт: плавное прогрессивное открытие -------- */
+  /* -------- 1. Конверт: полноэкранный, открытие ТОЛЬКО по нажатию -------- */
   var stage = document.getElementById("stage");
-  var envelope = document.getElementById("envelope");
   var site = document.getElementById("site");
-  var envFlap = document.getElementById("env-flap");
-  var envCover = document.getElementById("env-cover");
-  var seal = document.getElementById("seal");
-  var letter = document.getElementById("letter");
-  var openHint = document.getElementById("open-hint");
   var opened = false;
-  var progress = 0;        // 0 = полностью закрыт, 1 = полностью открыт
-  var autoAnimating = false;
 
   // Режим предпросмотра (?skipIntro=1) — сразу показать сайт без конверта
   var SKIP_INTRO = new URLSearchParams(location.search).get("skipIntro") === "1";
   if (SKIP_INTRO) {
     opened = true;
-    progress = 1;
     if (stage) stage.classList.add("opened");
     if (site) site.classList.add("revealed");
     document.body.classList.remove("locked");
   }
 
-  /* --- Рендеринг состояния конверта по прогрессу 0→1 --- */
-  function renderEnvelope(p) {
-    p = Math.max(0, Math.min(1, p));
-
-    // Клапан: поворот 0→180°   (при p: 0→0.5)
-    var flapAngle = Math.min(p / 0.5, 1) * 180;
-    envFlap.style.transform = "rotateX(" + flapAngle + "deg)";
-    if (flapAngle > 90) {
-      envFlap.style.zIndex = "1";
-    } else {
-      envFlap.style.zIndex = "6";
-    }
-
-    // Печать: уменьшение + прозрачность  (при p: 0→0.35)
-    var sealP = Math.min(p / 0.35, 1);
-    var sealScale = 1 - sealP;
-    seal.style.transform = "translate(-50%, -50%) scale(" + sealScale + ")";
-    seal.style.opacity = (1 - sealP).toString();
-
-    // Крышка (cover): исчезает  (при p: 0.25→0.55)
-    var coverP = Math.max(0, Math.min((p - 0.25) / 0.3, 1));
-    envCover.style.opacity = (1 - coverP).toString();
-
-    // Письмо: выезжает вверх    (при p: 0.35→0.85)
-    var letterP = Math.max(0, Math.min((p - 0.35) / 0.5, 1));
-    var letterY = -58 * letterP;
-    letter.style.transform = "translateY(" + letterY + "%)";
-    if (letterP > 0) {
-      letter.style.zIndex = "7";
-    } else {
-      letter.style.zIndex = "3";
-    }
-
-    // Подсказка: скрывается при начале открытия
-    if (openHint) {
-      openHint.style.opacity = p > 0.05 ? "0" : "1";
-    }
-  }
-
-  /* --- Завершение открытия (прогресс достиг 1) --- */
-  function completeOpen() {
+  /* --- Открытие конверта по клику (никакого свайпа) --- */
+  function openEnvelope() {
     if (opened) return;
     opened = true;
-    removeListeners();
+
+    // Сайт начинает проявляться сразу — виднеется за раскрывающимся конвертом
+    site.classList.add("revealed");
+    // Красивая CSS-анимация раскрытия (клапаны отгибаются — класс .is-open)
+    stage.classList.add("is-open");
+    // Музыка стартует по клику (это разрешённый жест для автоплея)
+    revealMusic(true);
+
+    // После завершения раскрытия — прячем сцену и разблокируем скролл
     setTimeout(function () {
       stage.classList.add("opened");
-      site.classList.add("revealed");
       document.body.classList.remove("locked");
-      // Запускаем reveal-анимации ПОСЛЕ открытия конверта
       initRevealObserver();
-    }, 400);
+    }, 1600);
   }
 
-  /* --- Инкремент прогресса (для скролла) --- */
-  function incrementProgress(delta) {
-    if (opened || autoAnimating) return;
-    progress = Math.min(1, progress + delta);
-    renderEnvelope(progress);
-    if (progress >= 1) completeOpen();
-  }
-
-  /* --- Автоматическое открытие (по клику) — плавная анимация 2 секунды --- */
-  function autoOpen() {
-    if (opened || autoAnimating) return;
-    autoAnimating = true;
-    var startP = progress;
-    var startTime = performance.now();
-    var duration = 2000; // мс
-
-    function animate(now) {
-      var elapsed = now - startTime;
-      var t = Math.min(elapsed / duration, 1);
-      // Плавная easing-функция
-      var ease = t < 0.5
-        ? 4 * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      progress = startP + (1 - startP) * ease;
-      renderEnvelope(progress);
-
-      if (t < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        progress = 1;
-        autoAnimating = false;
-        completeOpen();
-      }
-    }
-    requestAnimationFrame(animate);
-  }
-
-  /* --- Обработчики событий --- */
-  function onWheel(e) {
-    // Каждый скролл прибавляет ~5% прогресса
-    var delta = Math.abs(e.deltaY) > 50 ? 0.08 : 0.05;
-    incrementProgress(delta);
-  }
-
-  function onTouchStart(e) {
-    envelope._touchY = e.changedTouches[0].screenY;
-  }
-
-  function onTouchMove(e) {
-    if (!envelope._touchY) return;
-    var dy = envelope._touchY - e.changedTouches[0].screenY;
-    if (dy > 0) { // только свайп вверх (листание вниз)
-      incrementProgress(dy / 600);
-      envelope._touchY = e.changedTouches[0].screenY;
-    }
-  }
-
-  function removeListeners() {
-    window.removeEventListener("wheel", onWheel);
-    window.removeEventListener("touchstart", onTouchStart);
-    window.removeEventListener("touchmove", onTouchMove);
-  }
-
-  if (envelope && !opened) {
-    // Рендерим начальное состояние (полностью закрыт)
-    renderEnvelope(0);
-
-    // Клик = автоматическое плавное открытие
-    envelope.addEventListener("click", autoOpen);
-    envelope.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); autoOpen(); }
+  if (stage && !opened) {
+    stage.setAttribute("role", "button");
+    stage.setAttribute("tabindex", "0");
+    stage.setAttribute("aria-label", "Открыть приглашение");
+    stage.addEventListener("click", openEnvelope);
+    stage.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openEnvelope(); }
     });
-
-    // Скролл = ручное постепенное открытие
-    window.addEventListener("wheel", onWheel, { passive: true });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
   }
 
   /* -------- 2. Reveal-анимации при скролле -------- */
@@ -178,7 +67,7 @@
     }, 100);
   }
   // Если конверт уже пропущен (skipIntro), запускаем сразу
-  if (SKIP_INTRO) { initRevealObserver(); }
+  if (SKIP_INTRO) { initRevealObserver(); revealMusic(false); }
 
   /* -------- 3. Галерея + lightbox -------- */
   var gallery = document.getElementById("gallery");
@@ -324,6 +213,211 @@
     }
   }
 
+  /* -------- 7. Hero: фото-обложка, имена, дата -------- */
+  (function initHero() {
+    var hp = document.getElementById("hero-photo");
+    if (hp && CFG.heroPhoto) hp.style.backgroundImage = "url('" + CFG.heroPhoto + "')";
+    var hn = document.getElementById("hero-names");
+    if (hn && CFG.groom && CFG.bride) {
+      hn.innerHTML = CFG.groom + ' <span class="amp">&amp;</span> ' + CFG.bride;
+    }
+    setText("hero-date", CFG.dateShort);
+  })();
+
+  /* -------- 8. Календарь -------- */
+  (function initCalendar() {
+    var cal = document.getElementById("calendar");
+    if (!cal || !CFG.calendar) return;
+    var mon = CFG.calendar.monthLabel || "";
+    (CFG.calendar.days || []).forEach(function (d) {
+      var cell = document.createElement("div");
+      cell.className = "cal-day" + (d.highlight ? " is-wed" : "");
+      cell.innerHTML =
+        '<div class="dow">' + (d.dow || "") + '</div>' +
+        '<div class="mon">' + mon + '</div>' +
+        '<div class="num">' + (d.num || "") + '</div>' +
+        (d.highlight
+          ? '<svg class="cal-ring" viewBox="0 0 200 150" preserveAspectRatio="none">' +
+            '<path d="M158 34 C120 14 70 16 44 42 C20 66 22 104 60 122 C104 142 168 130 178 86 C185 54 152 28 120 26 C150 30 172 50 168 80"/>' +
+            '</svg>'
+          : '');
+      cal.appendChild(cell);
+    });
+    // Прорисовка круга по реальной длине пути, когда календарь появляется
+    var wed = cal.querySelector(".cal-day.is-wed");
+    var ringPath = cal.querySelector(".cal-ring path");
+    if (ringPath) {
+      var len = ringPath.getTotalLength();
+      ringPath.style.strokeDasharray = len;
+      ringPath.style.strokeDashoffset = len;
+    }
+    if (wed) {
+      var co = new IntersectionObserver(function (ents) {
+        ents.forEach(function (e) {
+          if (e.isIntersecting) { setTimeout(function () { wed.classList.add("drawn"); }, 400); co.disconnect(); }
+        });
+      }, { threshold: 0.4 });
+      co.observe(cal);
+    }
+  })();
+
+  /* -------- 9. Тайм-лайн (сердечко едет по линии) -------- */
+  (function initTimeline() {
+    var tl = document.getElementById("timeline");
+    var svg = document.getElementById("timeline-svg");
+    var pathBg = document.getElementById("tl-path-bg");
+    var path = document.getElementById("tl-path");
+    var heart = document.getElementById("tl-heart");
+    var eventsBox = document.getElementById("tl-events");
+    var data = CFG.timeline || [];
+    if (!tl || !data.length) return;
+
+    // создаём блоки событий
+    data.forEach(function (ev, i) {
+      var el = document.createElement("div");
+      el.className = "tl-event " + (i % 2 === 0 ? "left" : "right");
+      el.innerHTML =
+        '<div class="t-title">' + (ev.title || "") + '</div>' +
+        '<div class="t-time">' + (ev.time || "") + '</div>' +
+        (ev.note ? '<div class="t-note">' + ev.note + '</div>' : '');
+      eventsBox.appendChild(el);
+    });
+    var eventEls = Array.prototype.slice.call(eventsBox.children);
+
+    var N = data.length;
+    var W = 0, H = 0, cx = 0, A = 0, pathLen = 0;
+
+    function waveX(t) { return cx + A * Math.sin(Math.PI * N * t); }
+
+    function layout() {
+      W = tl.clientWidth;
+      var step = W < 480 ? 150 : 170;
+      H = N * step;
+      cx = W / 2;
+      A = Math.min(W * 0.26, 140);
+      tl.style.height = H + "px";
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+      // строим путь синусоидой
+      var d = "", steps = 80;
+      for (var k = 0; k <= steps; k++) {
+        var t = k / steps;
+        var x = waveX(t).toFixed(1);
+        var y = (t * H).toFixed(1);
+        d += (k === 0 ? "M" : "L") + x + " " + y + " ";
+      }
+      pathBg.setAttribute("d", d);
+      path.setAttribute("d", d);
+      pathLen = path.getTotalLength();
+      path.style.strokeDasharray = pathLen;
+
+      // позиционируем события по вертикали
+      eventEls.forEach(function (el, i) {
+        el.style.top = (((i + 0.5) / N) * H - 28) + "px";
+      });
+
+      update();
+    }
+
+    function update() {
+      var rect = tl.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      // Сердечко «ждёт» в начале: прогресс стартует только когда верх
+      // тайм-лайна поднимется чуть выше середины экрана (45% vh),
+      // и завершается, когда низ дойдёт до 75% vh — сердце плавно опускается.
+      var startTop = vh * 0.45;
+      var L = H - vh * 0.30;
+      if (L < 240) L = 240;
+      var p = (startTop - rect.top) / L;
+      p = Math.max(0, Math.min(1, p));
+
+      // сердечко
+      heart.style.top = (p * H) + "px";
+      heart.style.left = waveX(p) + "px";
+      // линия рисуется до позиции сердца
+      path.style.strokeDashoffset = (pathLen * (1 - p)).toString();
+
+      // появление событий — когда сердце поравнялось с ними
+      eventEls.forEach(function (el, i) {
+        var thr = (i + 0.5) / N;
+        if (p >= thr - 0.06) el.classList.add("in");
+      });
+    }
+
+    layout();
+    window.addEventListener("resize", debounce(layout, 150));
+    window.addEventListener("scroll", update, { passive: true });
+  })();
+
+  /* -------- 10. Фото площадки -------- */
+  (function initVenuePhoto() {
+    var vp = document.getElementById("venue-photo");
+    if (vp && v && v.photo) vp.style.backgroundImage = "url('" + v.photo + "')";
+    else if (vp) vp.style.display = "none";
+  })();
+
+  /* -------- 11. Дресс-код -------- */
+  (function initDresscode() {
+    var dc = CFG.dresscode || {};
+    setText("dc-text", dc.text);
+    var box = document.getElementById("dc-colors");
+    if (box && dc.colors) {
+      dc.colors.forEach(function (c) {
+        var dot = document.createElement("div");
+        dot.className = "dc-dot";
+        dot.style.background = c;
+        dot.title = c;
+        box.appendChild(dot);
+      });
+    }
+  })();
+
+  /* -------- 12. Музыка -------- */
+  var audio = document.getElementById("bg-music");
+  var musicBtn = document.getElementById("music-toggle");
+  var musicIcon = document.getElementById("music-icon");
+  var ICON_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  var ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+
+  function setMusicUI(playing) {
+    if (!musicBtn) return;
+    if (playing) { musicBtn.classList.remove("paused"); musicIcon.innerHTML = ICON_PAUSE; }
+    else { musicBtn.classList.add("paused"); musicIcon.innerHTML = ICON_PLAY; }
+  }
+  function playMusic() {
+    if (!audio || !CFG.music) return Promise.reject();
+    return audio.play();
+  }
+
+  function revealMusic(tryAutoplay) {
+    if (!musicBtn) return;
+    musicBtn.hidden = false;
+    if (!CFG.music) {
+      // музыки нет — показываем кнопку в состоянии «выключено», без действия звука
+      musicBtn.classList.add("show", "paused");
+      musicIcon.innerHTML = ICON_PLAY;
+      return;
+    }
+    audio.src = CFG.music;
+    musicBtn.classList.add("show");
+    if (tryAutoplay && CFG.musicOnByDefault) {
+      playMusic().then(function () { setMusicUI(true); })
+                 .catch(function () { setMusicUI(false); });
+    } else {
+      setMusicUI(false);
+    }
+  }
+
+  if (musicBtn) {
+    musicBtn.addEventListener("click", function () {
+      if (!CFG.music) return; // нечего играть
+      if (audio.paused) { playMusic().then(function () { setMusicUI(true); }).catch(function () {}); }
+      else { audio.pause(); setMusicUI(false); }
+    });
+  }
+  // В режиме предпросмотра (skipIntro) показываем кнопку музыки без автоплея
+  if (SKIP_INTRO) revealMusic(false);
+
   /* ============================================================
      Хелперы
      ============================================================ */
@@ -332,15 +426,31 @@
     if (el && val !== undefined && val !== null && val !== "") el.textContent = val;
   }
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  function debounce(fn, ms) {
+    var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); };
+  }
 
-  // Открыть карты — использует geo: URI для вызова системного окна выбора приложений
-  // (2GIS, Яндекс Карты, Google Maps, Apple Maps и т.д.)
+  // Открыть карты — на телефоне через geo:/maps: (системный выбор приложений),
+  // на десктопе — Google Maps в новой вкладке (geo: на ПК не обрабатывается)
   function openMaps(venue) {
     var hasCoords = venue.lat != null && venue.lng != null;
     var ua = navigator.userAgent || "";
     var isIOS = /iPad|iPhone|iPod/.test(ua) ||
       (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
+    var isAndroid = /Android/.test(ua);
+    var isMobile = isIOS || isAndroid;
 
+    // --- Десктоп: открываем веб-карту в новой вкладке ---
+    if (!isMobile) {
+      var q = venue.query
+        ? encodeURIComponent(venue.query)
+        : hasCoords ? (venue.lat + "," + venue.lng)
+        : encodeURIComponent(venue.name || "");
+      window.open("https://www.google.com/maps/search/?api=1&query=" + q, "_blank", "noopener");
+      return;
+    }
+
+    // --- Мобильные ---
     if (hasCoords) {
       // geo: URI — вызывает системное окно выбора приложений на Android
       // На iOS geo: тоже работает, но можно усилить через Apple Maps
@@ -353,7 +463,7 @@
           "&ll=" + venue.lat + "," + venue.lng;
         window.location.href = iosUrl;
       } else {
-        // Android + Desktop: geo: URI вызывает окно выбора приложений
+        // Android: geo: URI вызывает окно выбора приложений
         var geoUrl = "geo:" + venue.lat + "," + venue.lng + "?q=" + venue.lat + "," + venue.lng;
         if (label) geoUrl += "(" + label + ")";
         window.location.href = geoUrl;

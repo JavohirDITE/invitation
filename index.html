@@ -18,108 +18,123 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500&family=Marck+Script&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body class="locked">
 
-  <!-- ============ КОНВЕРТ ============ -->
+  <!-- ============ КОНВЕРТ (полноэкранный) ============ -->
   <div class="envelope-stage" id="stage">
-    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Открыть приглашение">
-      <div class="env-body"></div>
-
-      <div class="letter" id="letter">
-        <div class="names">Сергей <span style="color:var(--c-accent);font-style:italic">&amp;</span> Юлия</div>
-        <div class="small">Приглашение</div>
+    <!-- 4 клапана конверта тайлят весь экран и раскрываются наружу -->
+    <div class="ef ef-top">
+      <div class="env-caption">
+        <span class="line1">Приглашение</span>
+        <span class="line2">на свадьбу</span>
       </div>
+    </div>
+    <div class="ef ef-right"></div>
+    <div class="ef ef-bottom"></div>
+    <div class="ef ef-left"></div>
 
-      <!-- Внутренняя крышка — полностью закрывает письмо -->
-      <div class="env-cover" id="env-cover"></div>
-
-      <div class="env-bottom"></div>
-      <div class="env-flap" id="env-flap"></div>
-      <div class="seal" id="seal" aria-hidden="true">С·Ю</div>
-
-      <div class="open-hint" id="open-hint">нажмите или листайте вниз</div>
+    <!-- сургучная печать по центру -->
+    <div class="seal" id="seal" aria-hidden="true">
+      <span>нажмите</span>
     </div>
   </div>
+
+  <!-- ============ КНОПКА МУЗЫКИ ============ -->
+  <button class="music-toggle" id="music-toggle" aria-label="Музыка" hidden>
+    <svg class="music-ring" viewBox="0 0 100 100" aria-hidden="true">
+      <defs>
+        <path id="circlePath" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0" />
+      </defs>
+      <text class="ring-text"><textPath href="#circlePath" startOffset="0%">нажмите, чтобы включить или отключить музыку · </textPath></text>
+    </svg>
+    <span class="music-icon" id="music-icon">
+      <!-- pause/play вставляется из JS -->
+    </span>
+  </button>
+
+  <!-- фоновая музыка -->
+  <audio id="bg-music" loop preload="none"></audio>
 
   <!-- ============ САЙТ ============ -->
   <main class="site" id="site">
 
-    <!-- HERO -->
-    <header class="hero">
-      <!-- Цветочные декоративные SVG (розы вместо листьев) -->
-      <svg class="floral f1" viewBox="0 0 100 100" fill="var(--c-sage)">
-        <circle cx="50" cy="40" r="18" opacity=".6"/>
-        <circle cx="35" cy="55" r="14" opacity=".4"/>
-        <circle cx="65" cy="55" r="14" opacity=".4"/>
-        <circle cx="42" cy="70" r="10" opacity=".3"/>
-        <circle cx="58" cy="70" r="10" opacity=".3"/>
-        <ellipse cx="50" cy="85" rx="22" ry="8" opacity=".2"/>
-      </svg>
-      <svg class="floral f2" viewBox="0 0 100 100" fill="var(--c-blush)">
-        <circle cx="50" cy="40" r="18" opacity=".6"/>
-        <circle cx="35" cy="55" r="14" opacity=".4"/>
-        <circle cx="65" cy="55" r="14" opacity=".4"/>
-        <circle cx="42" cy="70" r="10" opacity=".3"/>
-        <circle cx="58" cy="70" r="10" opacity=".3"/>
-        <ellipse cx="50" cy="85" rx="22" ry="8" opacity=".2"/>
-      </svg>
-      <svg class="floral f3" viewBox="0 0 100 100" fill="var(--c-sage)">
-        <circle cx="50" cy="40" r="18" opacity=".6"/>
-        <circle cx="35" cy="55" r="14" opacity=".4"/>
-        <circle cx="65" cy="55" r="14" opacity=".4"/>
-        <circle cx="50" cy="68" r="12" opacity=".3"/>
-      </svg>
-      <svg class="floral f4" viewBox="0 0 100 100" fill="var(--c-blush)">
-        <circle cx="50" cy="40" r="18" opacity=".6"/>
-        <circle cx="35" cy="55" r="14" opacity=".4"/>
-        <circle cx="65" cy="55" r="14" opacity=".4"/>
-        <circle cx="50" cy="68" r="12" opacity=".3"/>
-      </svg>
-
-      <!-- Контейнер для sparkle-частиц (заполняется JS) -->
+    <!-- HERO (обложка) -->
+    <header class="hero" id="hero">
       <div class="sparkle-container" id="sparkles" aria-hidden="true"></div>
 
-      <p class="eyebrow">мы женимся</p>
-      <h1 class="names">Сергей<span class="amp">&amp;</span>Юлия</h1>
-      <p class="sub">приглашаем вас на нашу свадьбу</p>
-      <p class="date-line">5 сентября · 18:00</p>
+      <div class="hero-inner">
+        <p class="eyebrow">мы женимся</p>
+        <h1 class="names script" id="hero-names">Сергей <span class="amp">&amp;</span> Юлия</h1>
+        <div class="hero-frame">
+          <div class="hero-photo" id="hero-photo"></div>
+        </div>
+        <p class="hero-date" id="hero-date">05 / 09</p>
+      </div>
 
       <div class="scroll-cue">листайте<span></span></div>
     </header>
 
-    <!-- ПРИГЛАШЕНИЕ -->
+    <!-- ПРИГЛАШЕНИЕ + КАЛЕНДАРЬ -->
     <section class="center">
       <div class="wrap">
-        <p class="eyebrow reveal">с любовью приглашаем</p>
-        <div class="divider reveal d1"><svg viewBox="0 0 100 100" fill="var(--c-sage)"><circle cx="50" cy="50" r="16"/><circle cx="30" cy="50" r="10" opacity=".5"/><circle cx="70" cy="50" r="10" opacity=".5"/></svg></div>
-        <h2 class="title reveal d1">Дорогие гости!</h2>
-        <p class="lead reveal d2">
-          В этот особенный день мы хотим, чтобы рядом были самые близкие и родные люди.
-          С трепетом и радостью приглашаем вас разделить с нами начало нашей новой
-          совместной истории.
+        <h2 class="script-title reveal">Дорогие гости!</h2>
+        <p class="lead reveal d1">
+          Мы очень хотим сделать этот день особенным, поэтому приглашаем вас
+          разделить с нами торжество, посвящённое дню нашей свадьбы!
         </p>
+
+        <div class="calendar reveal d2" id="calendar"><!-- из JS --></div>
       </div>
     </section>
 
-    <!-- ДАТА + ТАЙМЕР -->
+    <!-- ТАЙМ-ЛАЙН ДНЯ -->
+    <section class="section-alt timeline-section">
+      <div class="wrap center">
+        <p class="eyebrow reveal">программа дня</p>
+        <h2 class="script-title reveal d1">Как пройдёт день</h2>
+      </div>
+      <div class="timeline" id="timeline">
+        <svg class="timeline-svg" id="timeline-svg" preserveAspectRatio="none" aria-hidden="true">
+          <path class="tl-path-bg" id="tl-path-bg" fill="none" />
+          <path class="tl-path" id="tl-path" fill="none" />
+        </svg>
+        <div class="tl-heart" id="tl-heart" aria-hidden="true">
+          <svg viewBox="0 0 32 29" fill="currentColor"><path d="M16 29s-13-8.4-13-17.3C3 6.6 6.6 3 11 3c2.7 0 4.3 1.4 5 2.6C16.7 4.4 18.3 3 21 3c4.4 0 8 3.6 8 8.7C29 20.6 16 29 16 29z"/></svg>
+        </div>
+        <div class="tl-events" id="tl-events"><!-- из JS --></div>
+      </div>
+    </section>
+
+    <!-- ЛОКАЦИЯ -->
+    <section class="center">
+      <div class="wrap">
+        <p class="eyebrow reveal">где нас найти</p>
+        <h2 class="script-title reveal d1">Место проведения</h2>
+
+        <div class="venue-photo reveal d1" id="venue-photo"></div>
+
+        <div class="place-card reveal d2">
+          <div class="venue" id="venue-name">Уточняется</div>
+          <div class="addr" id="venue-addr">Точный адрес сообщим дополнительно</div>
+          <button class="btn" id="map-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+            Построить маршрут
+          </button>
+          <p style="font-size:12px;color:var(--c-muted);margin-top:14px">Откроется приложение карт на вашем устройстве</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ДРЕСС-КОД -->
     <section class="section-alt center">
       <div class="wrap">
-        <p class="eyebrow reveal">сохраните дату</p>
-        <div class="date-grid">
-          <div class="big reveal d1"><div class="num">05</div><div class="lbl">сентября</div></div>
-          <div class="mid reveal d1"></div>
-          <div class="big reveal d2"><div class="num">18<span style="font-size:.5em">:00</span></div><div class="lbl">начало</div></div>
-        </div>
-
-        <div class="countdown reveal d2" id="countdown" aria-label="Обратный отсчёт">
-          <div class="cd-item"><b id="cd-days">—</b><span>дней</span></div>
-          <div class="cd-item"><b id="cd-hours">—</b><span>часов</span></div>
-          <div class="cd-item"><b id="cd-min">—</b><span>минут</span></div>
-          <div class="cd-item"><b id="cd-sec">—</b><span>секунд</span></div>
-        </div>
+        <p class="eyebrow reveal">пожелания к образу</p>
+        <h2 class="script-title reveal d1">Дресс-код</h2>
+        <p class="lead reveal d2" id="dc-text"></p>
+        <div class="dc-colors reveal d2" id="dc-colors"><!-- из JS --></div>
       </div>
     </section>
 
@@ -127,24 +142,21 @@
     <section class="center">
       <div class="wrap">
         <p class="eyebrow reveal">наши моменты</p>
-        <h2 class="title reveal d1">Мгновения вместе</h2>
+        <h2 class="script-title reveal d1">Мгновения вместе</h2>
         <div class="gallery" id="gallery"><!-- наполняется из JS --></div>
       </div>
     </section>
 
-    <!-- ЛОКАЦИЯ -->
+    <!-- ДО ВСТРЕЧИ -->
     <section class="section-alt center">
       <div class="wrap">
-        <p class="eyebrow reveal">где нас найти</p>
-        <h2 class="title reveal d1">Место торжества</h2>
-        <div class="place-card reveal d2">
-          <div class="venue" id="venue-name">Уточняется</div>
-          <div class="addr" id="venue-addr">Точный адрес сообщим дополнительно</div>
-          <button class="btn" id="map-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Открыть карту в телефоне
-          </button>
-          <p style="font-size:12px;color:var(--c-muted);margin-top:14px">Откроется приложение карт на вашем устройстве</p>
+        <p class="eyebrow reveal">осталось совсем немного</p>
+        <h2 class="script-title reveal d1">До встречи через</h2>
+        <div class="countdown reveal d2" id="countdown" aria-label="Обратный отсчёт">
+          <div class="cd-item"><b id="cd-days">—</b><span>дней</span></div>
+          <div class="cd-item"><b id="cd-hours">—</b><span>часов</span></div>
+          <div class="cd-item"><b id="cd-min">—</b><span>минут</span></div>
+          <div class="cd-item"><b id="cd-sec">—</b><span>секунд</span></div>
         </div>
       </div>
     </section>
