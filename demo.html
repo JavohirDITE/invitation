@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Конструктор палитры · Сергей и Юлия</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Jost', system-ui, sans-serif; }
+    body { display: flex; overflow: hidden; background: #2a2020; }
+
+    /* предпросмотр */
+    .preview { flex: 1; position: relative; }
+    .preview iframe { width: 100%; height: 100%; border: 0; display: block; background: #faf5f0; }
+
+    /* панель конструктора — тёплые бордовые тона */
+    .panel {
+      width: 340px; max-width: 86vw; height: 100%; overflow-y: auto;
+      background: #2d1e1e; color: #f0e4dc; padding: 22px 20px 40px;
+      box-shadow: -10px 0 40px rgba(0,0,0,.4); flex-shrink: 0;
+      transition: transform .4s cubic-bezier(.22,1,.36,1);
+    }
+    .panel.hidden { transform: translateX(100%); position: absolute; right: 0; }
+    .panel h1 { font-size: 18px; font-weight: 500; letter-spacing: .04em; }
+    .panel .hint { font-size: 12px; color: #a08a80; margin: 6px 0 18px; line-height: 1.5; }
+
+    .field { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #3d2c2c; }
+    .field label { flex: 1; font-size: 13px; }
+    .field .code { font-size: 11px; color: #9a847a; font-family: monospace; }
+    .field input[type=color] {
+      width: 38px; height: 38px; border: 1px solid #4d3838; border-radius: 8px;
+      background: none; cursor: pointer; padding: 2px;
+    }
+
+    .row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    .b {
+      flex: 1; min-width: 130px; padding: 13px 14px; border: none; border-radius: 10px; cursor: pointer;
+      font-family: inherit; font-size: 13px; letter-spacing: .04em; transition: opacity .2s, transform .2s;
+    }
+    .b:hover { transform: translateY(-2px); }
+    .b-primary { background: #8b2d3a; color: #fff0e6; font-weight: 500; }
+    .b-ghost { background: #3d2c2c; color: #f0e4dc; }
+    .b-full { flex-basis: 100%; }
+
+    .presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 6px; }
+    .preset { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #4d3838; position: relative; overflow: hidden; transition: transform .2s, border-color .2s; }
+    .preset:hover { transform: scale(1.15); border-color: #8b2d3a; }
+    .preset i { position: absolute; inset: 0; display: block; }
+
+    .sub { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: #a08a80; margin: 22px 0 6px; }
+
+    /* кнопка показать панель */
+    .reopen {
+      position: fixed; top: 16px; right: 16px; z-index: 50;
+      background: #8b2d3a; color: #fff0e6; border: none; border-radius: 50px;
+      padding: 12px 18px; font-family: inherit; font-size: 13px; cursor: pointer; display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+      transition: transform .2s;
+    }
+    .reopen:hover { transform: translateY(-2px); }
+    .reopen.show { display: block; }
+
+    .toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #3d2222; color: #f0e4dc; padding: 12px 20px; border-radius: 10px;
+      font-size: 13px; opacity: 0; transition: all .35s; z-index: 100; pointer-events: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,.4); border: 1px solid #4d3838;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 760px) {
+      body { flex-direction: column; }
+      .preview { flex: 1; min-height: 0; }
+      .panel { width: 100%; max-width: 100%; height: 60%; }
+      .panel.hidden { transform: translateY(100%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview">
+    <iframe id="preview" src="index.html?skipIntro=1" title="Предпросмотр"></iframe>
+  </div>
+
+  <button class="reopen" id="reopen">Настроить палитру</button>
+
+  <aside class="panel" id="panel">
+    <h1>Палитра свадьбы</h1>
+    <p class="hint">Подберите цвета — превью обновляется сразу. Затем отправьте выбор организатору.</p>
+
+    <div class="sub">Готовые гаммы</div>
+    <div class="presets" id="presets"></div>
+
+    <div class="sub">Цвета</div>
+    <div id="fields"><!-- генерируется JS --></div>
+
+    <div class="row">
+      <button class="b b-primary b-full" id="send">Отправить выбор в Telegram</button>
+      <button class="b b-ghost" id="copy">Скопировать коды</button>
+      <button class="b b-ghost" id="reset">Сбросить</button>
+      <button class="b b-ghost b-full" id="hide">Скрыть панель</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/js/demo-config.js"></script>
+  <script src="assets/js/palette.js"></script>
+</body>
+</html>

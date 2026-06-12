@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#faf5f0" />
+  <meta name="color-scheme" content="light only" />
+  <title>Сергей и Юлия · 5 сентября</title>
+  <meta name="description" content="Приглашение на свадьбу Сергея и Юлии — 5 сентября, 18:00" />
+
+  <!-- Open Graph (красивое превью при отправке ссылки) -->
+  <meta property="og:title" content="Сергей и Юлия · Свадьба 5 сентября" />
+  <meta property="og:description" content="С радостью приглашаем вас разделить с нами этот день" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="photo/IMG_5900.JPG" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="locked">
+
+  <!-- ============ КОНВЕРТ ============ -->
+  <div class="envelope-stage" id="stage">
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Открыть приглашение">
+      <div class="env-body"></div>
+
+      <div class="letter" id="letter">
+        <div class="names">Сергей <span style="color:var(--c-accent);font-style:italic">&amp;</span> Юлия</div>
+        <div class="small">Приглашение</div>
+      </div>
+
+      <!-- Внутренняя крышка — полностью закрывает письмо -->
+      <div class="env-cover" id="env-cover"></div>
+
+      <div class="env-bottom"></div>
+      <div class="env-flap" id="env-flap"></div>
+      <div class="seal" id="seal" aria-hidden="true">С·Ю</div>
+
+      <div class="open-hint" id="open-hint">нажмите или листайте вниз</div>
+    </div>
+  </div>
+
+  <!-- ============ САЙТ ============ -->
+  <main class="site" id="site">
+
+    <!-- HERO -->
+    <header class="hero">
+      <!-- Цветочные декоративные SVG (розы вместо листьев) -->
+      <svg class="floral f1" viewBox="0 0 100 100" fill="var(--c-sage)">
+        <circle cx="50" cy="40" r="18" opacity=".6"/>
+        <circle cx="35" cy="55" r="14" opacity=".4"/>
+        <circle cx="65" cy="55" r="14" opacity=".4"/>
+        <circle cx="42" cy="70" r="10" opacity=".3"/>
+        <circle cx="58" cy="70" r="10" opacity=".3"/>
+        <ellipse cx="50" cy="85" rx="22" ry="8" opacity=".2"/>
+      </svg>
+      <svg class="floral f2" viewBox="0 0 100 100" fill="var(--c-blush)">
+        <circle cx="50" cy="40" r="18" opacity=".6"/>
+        <circle cx="35" cy="55" r="14" opacity=".4"/>
+        <circle cx="65" cy="55" r="14" opacity=".4"/>
+        <circle cx="42" cy="70" r="10" opacity=".3"/>
+        <circle cx="58" cy="70" r="10" opacity=".3"/>
+        <ellipse cx="50" cy="85" rx="22" ry="8" opacity=".2"/>
+      </svg>
+      <svg class="floral f3" viewBox="0 0 100 100" fill="var(--c-sage)">
+        <circle cx="50" cy="40" r="18" opacity=".6"/>
+        <circle cx="35" cy="55" r="14" opacity=".4"/>
+        <circle cx="65" cy="55" r="14" opacity=".4"/>
+        <circle cx="50" cy="68" r="12" opacity=".3"/>
+      </svg>
+      <svg class="floral f4" viewBox="0 0 100 100" fill="var(--c-blush)">
+        <circle cx="50" cy="40" r="18" opacity=".6"/>
+        <circle cx="35" cy="55" r="14" opacity=".4"/>
+        <circle cx="65" cy="55" r="14" opacity=".4"/>
+        <circle cx="50" cy="68" r="12" opacity=".3"/>
+      </svg>
+
+      <!-- Контейнер для sparkle-частиц (заполняется JS) -->
+      <div class="sparkle-container" id="sparkles" aria-hidden="true"></div>
+
+      <p class="eyebrow">мы женимся</p>
+      <h1 class="names">Сергей<span class="amp">&amp;</span>Юлия</h1>
+      <p class="sub">приглашаем вас на нашу свадьбу</p>
+      <p class="date-line">5 сентября · 18:00</p>
+
+      <div class="scroll-cue">листайте<span></span></div>
+    </header>
+
+    <!-- ПРИГЛАШЕНИЕ -->
+    <section class="center">
+      <div class="wrap">
+        <p class="eyebrow reveal">с любовью приглашаем</p>
+        <div class="divider reveal d1"><svg viewBox="0 0 100 100" fill="var(--c-sage)"><circle cx="50" cy="50" r="16"/><circle cx="30" cy="50" r="10" opacity=".5"/><circle cx="70" cy="50" r="10" opacity=".5"/></svg></div>
+        <h2 class="title reveal d1">Дорогие гости!</h2>
+        <p class="lead reveal d2">
+          В этот особенный день мы хотим, чтобы рядом были самые близкие и родные люди.
+          С трепетом и радостью приглашаем вас разделить с нами начало нашей новой
+          совместной истории.
+        </p>
+      </div>
+    </section>
+
+    <!-- ДАТА + ТАЙМЕР -->
+    <section class="section-alt center">
+      <div class="wrap">
+        <p class="eyebrow reveal">сохраните дату</p>
+        <div class="date-grid">
+          <div class="big reveal d1"><div class="num">05</div><div class="lbl">сентября</div></div>
+          <div class="mid reveal d1"></div>
+          <div class="big reveal d2"><div class="num">18<span style="font-size:.5em">:00</span></div><div class="lbl">начало</div></div>
+        </div>
+
+        <div class="countdown reveal d2" id="countdown" aria-label="Обратный отсчёт">
+          <div class="cd-item"><b id="cd-days">—</b><span>дней</span></div>
+          <div class="cd-item"><b id="cd-hours">—</b><span>часов</span></div>
+          <div class="cd-item"><b id="cd-min">—</b><span>минут</span></div>
+          <div class="cd-item"><b id="cd-sec">—</b><span>секунд</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ГАЛЕРЕЯ -->
+    <section class="center">
+      <div class="wrap">
+        <p class="eyebrow reveal">наши моменты</p>
+        <h2 class="title reveal d1">Мгновения вместе</h2>
+        <div class="gallery" id="gallery"><!-- наполняется из JS --></div>
+      </div>
+    </section>
+
+    <!-- ЛОКАЦИЯ -->
+    <section class="section-alt center">
+      <div class="wrap">
+        <p class="eyebrow reveal">где нас найти</p>
+        <h2 class="title reveal d1">Место торжества</h2>
+        <div class="place-card reveal d2">
+          <div class="venue" id="venue-name">Уточняется</div>
+          <div class="addr" id="venue-addr">Точный адрес сообщим дополнительно</div>
+          <button class="btn" id="map-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Открыть карту в телефоне
+          </button>
+          <p style="font-size:12px;color:var(--c-muted);margin-top:14px">Откроется приложение карт на вашем устройстве</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ФИНАЛ -->
+    <section class="finale">
+      <div class="wrap">
+        <p class="eyebrow reveal">до встречи</p>
+        <div class="big-thanks reveal d1">С нетерпением ждём вас</div>
+        <div class="divider reveal d2"><svg viewBox="0 0 100 100" fill="var(--c-sage)"><circle cx="50" cy="50" r="16"/><circle cx="30" cy="50" r="10" opacity=".5"/><circle cx="70" cy="50" r="10" opacity=".5"/></svg></div>
+        <p class="lead reveal d2">Сергей и Юлия · 5 сентября</p>
+      </div>
+    </section>
+
+    <footer class="footer">Сделано с любовью · 2026</footer>
+  </main>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <span class="lb-close" id="lb-close">&times;</span>
+    <span class="lb-nav lb-prev" id="lb-prev">&#8249;</span>
+    <img src="" alt="Фото" id="lb-img" />
+    <span class="lb-nav lb-next" id="lb-next">&#8250;</span>
+    <div class="lb-counter" id="lb-counter"></div>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
