@@ -177,12 +177,13 @@
 
   /* --- Шторка выбора приложения карт (мобильные) --- */
   var PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
-  function mapApps(lat, lng, isIOS) {
+  function mapApps(venue, isIOS) {
+    var lat = venue.lat, lng = venue.lng;
     var apps = [
       { name: "Яндекс Go (такси)", color: "#1a1a1a", href: "yandextaxi://route?end-lat=" + lat + "&end-lon=" + lng + "&level=50" },
-      { name: "Яндекс Карты",      color: "#ff3b30", href: "https://yandex.ru/maps/?rtext=~" + lat + "," + lng + "&rtt=auto&z=16" },
+      { name: "Яндекс Карты",      color: "#ff3b30", href: venue.mapYandex || ("https://yandex.ru/maps/?rtext=~" + lat + "," + lng + "&rtt=auto&z=16") },
       { name: "Google Maps",       color: "#1a73e8", href: "https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lng },
-      { name: "2ГИС",              color: "#25a85b", href: "dgis://2gis.ru/routeSearch/rsType/car/to/" + lng + "," + lat }
+      { name: "2ГИС",              color: "#25a85b", href: venue.map2gis || ("dgis://2gis.ru/routeSearch/rsType/car/to/" + lng + "," + lat) }
     ];
     // Apple Maps — только на iPhone/iPad (на Android его не существует)
     if (isIOS) {
@@ -198,7 +199,7 @@
     if (mapSheetBuilt || !mapSheetList) return;
     var ua = navigator.userAgent || "";
     var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
-    mapApps(venue.lat, venue.lng, isIOS).forEach(function (app) {
+    mapApps(venue, isIOS).forEach(function (app) {
       var a = document.createElement("a");
       a.className = "map-app";
       a.href = app.href;
