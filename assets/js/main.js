@@ -433,12 +433,6 @@
   // Открыть карты — на телефоне через geo:/maps: (системный выбор приложений),
   // на десктопе — Google Maps в новой вкладке (geo: на ПК не обрабатывается)
   function openMaps(venue) {
-    // Если задана прямая ссылка на место — открываем именно её (самый точный вариант)
-    if (venue.mapUrl) {
-      window.open(venue.mapUrl, "_blank", "noopener");
-      return;
-    }
-
     var hasCoords = venue.lat != null && venue.lng != null;
     var ua = navigator.userAgent || "";
     var isIOS = /iPad|iPhone|iPod/.test(ua) ||
@@ -446,8 +440,9 @@
     var isAndroid = /Android/.test(ua);
     var isMobile = isIOS || isAndroid;
 
-    // --- Десктоп: открываем веб-карту в новой вкладке ---
+    // --- Десктоп: точная ссылка на место (или поиск) в новой вкладке ---
     if (!isMobile) {
+      if (venue.mapUrl) { window.open(venue.mapUrl, "_blank", "noopener"); return; }
       var q = venue.query
         ? encodeURIComponent(venue.query)
         : hasCoords ? (venue.lat + "," + venue.lng)
