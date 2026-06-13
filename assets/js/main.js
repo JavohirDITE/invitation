@@ -166,7 +166,67 @@
 
   var mapBtn = document.getElementById("map-btn");
   if (mapBtn) {
-    mapBtn.addEventListener("click", function () { openMaps(v); });
+    mapBtn.addEventListener("click", function () {
+      var ua = navigator.userAgent || "";
+      var isMobile = /Android|iPad|iPhone|iPod/.test(ua) ||
+        (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
+      if (isMobile) showMapSheet(v);   // свой выбор приложения (iOS + Android одинаково)
+      else openMaps(v);                // десктоп — прямая ссылка / веб-карта
+    });
+  }
+
+  /* --- Шторка выбора приложения карт (мобильные) --- */
+  var PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  function mapApps(lat, lng) {
+    return [
+      { name: "Яндекс Go (такси)", color: "#1a1a1a", href: "yandextaxi://route?end-lat=" + lat + "&end-lon=" + lng + "&level=50" },
+      { name: "Яндекс Карты",      color: "#ff3b30", href: "https://yandex.ru/maps/?rtext=~" + lat + "," + lng + "&rtt=auto&z=16" },
+      { name: "Google Maps",       color: "#1a73e8", href: "https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lng },
+      { name: "2ГИС",              color: "#25a85b", href: "dgis://2gis.ru/routeSearch/rsType/car/to/" + lng + "," + lat },
+      { name: "Apple Maps",        color: "#5b6470", href: "https://maps.apple.com/?daddr=" + lat + "," + lng + "&dirflg=d" }
+    ];
+  }
+  var mapSheet = document.getElementById("mapsheet");
+  var mapSheetList = document.getElementById("mapsheet-list");
+  var mapSheetBuilt = false;
+
+  function buildMapSheet(venue) {
+    if (mapSheetBuilt || !mapSheetList) return;
+    mapApps(venue.lat, venue.lng).forEach(function (app) {
+      var a = document.createElement("a");
+      a.className = "map-app";
+      a.href = app.href;
+      a.rel = "noopener";
+      a.innerHTML =
+        '<span class="ic" style="background:' + app.color + '">' + PIN + '</span>' +
+        '<span class="nm">' + app.name + '</span>' +
+        '<span class="go">&#8250;</span>';
+      a.addEventListener("click", function () { setTimeout(hideMapSheet, 200); });
+      mapSheetList.appendChild(a);
+    });
+    mapSheetBuilt = true;
+  }
+  function showMapSheet(venue) {
+    // нет координат или нет разметки — запасной вариант
+    if (!mapSheet || venue.lat == null || venue.lng == null) { openMaps(venue); return; }
+    buildMapSheet(venue);
+    mapSheet.classList.add("show");
+    mapSheet.setAttribute("aria-hidden", "false");
+    document.body.classList.add("locked");
+  }
+  function hideMapSheet() {
+    if (!mapSheet) return;
+    mapSheet.classList.remove("show");
+    mapSheet.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("locked");
+  }
+  if (mapSheet) {
+    mapSheet.addEventListener("click", function (e) { if (e.target === mapSheet) hideMapSheet(); });
+    var mapCancel = document.getElementById("mapsheet-cancel");
+    if (mapCancel) mapCancel.addEventListener("click", hideMapSheet);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && mapSheet.classList.contains("show")) hideMapSheet();
+    });
   }
 
   /* -------- 5. Таймер обратного отсчёта -------- */
