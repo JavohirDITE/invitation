@@ -39,7 +39,7 @@
       stage.classList.add("opened");
       document.body.classList.remove("locked");
       initRevealObserver();
-    }, 1600);
+    }, 2000);
   }
 
   if (stage && !opened) {

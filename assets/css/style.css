@@ -92,17 +92,32 @@ img { display: block; max-width: 100%; }
   position: absolute; inset: 0;
   backface-visibility: hidden;
   transform-style: preserve-3d;
-  transition: transform 1.2s cubic-bezier(.65, 0, .2, 1);
   will-change: transform;
 }
+/* каскад: у каждого клапана своя задержка и скорость раскрытия */
 .ef-top    { clip-path: polygon(0 0, 100% 0, 50% 50%);       transform-origin: top center;
-             background: linear-gradient(165deg, var(--c-card), var(--c-blush)); }
-.ef-bottom { clip-path: polygon(0 100%, 100% 100%, 50% 50%); transform-origin: bottom center;
-             background: linear-gradient(195deg, var(--c-blush), var(--c-bg-alt)); }
+             background: linear-gradient(165deg, var(--c-card), var(--c-blush));
+             transition: transform 1.0s cubic-bezier(.62,.02,.2,1) .30s; }
 .ef-left   { clip-path: polygon(0 0, 0 100%, 50% 50%);       transform-origin: left center;
-             background: linear-gradient(115deg, var(--c-blush), var(--c-bg-alt)); }
+             background: linear-gradient(115deg, var(--c-blush), var(--c-bg-alt));
+             transition: transform 1.0s cubic-bezier(.62,.02,.2,1) .52s; }
 .ef-right  { clip-path: polygon(100% 0, 100% 100%, 50% 50%); transform-origin: right center;
-             background: linear-gradient(245deg, var(--c-blush), var(--c-bg-alt)); }
+             background: linear-gradient(245deg, var(--c-blush), var(--c-bg-alt));
+             transition: transform 1.0s cubic-bezier(.62,.02,.2,1) .52s; }
+.ef-bottom { clip-path: polygon(0 100%, 100% 100%, 50% 50%); transform-origin: bottom center;
+             background: linear-gradient(195deg, var(--c-blush), var(--c-bg-alt));
+             transition: transform 1.05s cubic-bezier(.62,.02,.2,1) .72s; }
+
+/* тень на сгибе — нарастает по мере раскрытия (создаёт объём бумаги) */
+.ef::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  opacity: 0; transition: opacity 1.0s var(--ease);
+  background: linear-gradient(to bottom, rgba(45,20,25,0) 40%, rgba(45,20,25,.42));
+}
+.ef-top::before    { transition-delay: .30s; }
+.ef-left::before   { background: linear-gradient(to right, rgba(45,20,25,0) 40%, rgba(45,20,25,.4));  transition-delay: .52s; }
+.ef-right::before  { background: linear-gradient(to left,  rgba(45,20,25,0) 40%, rgba(45,20,25,.4));  transition-delay: .52s; }
+.ef-bottom::before { background: linear-gradient(to top,   rgba(45,20,25,0) 40%, rgba(45,20,25,.42)); transition-delay: .72s; }
 
 /* тонкая «золотая» линия по диагональным швам конверта */
 .ef::after {
@@ -115,9 +130,10 @@ img { display: block; max-width: 100%; }
 
 /* раскрытие наружу — клапаны отгибаются и исчезают (backface скрыт) */
 .envelope-stage.is-open .ef-top    { transform: rotateX(-180deg); }
-.envelope-stage.is-open .ef-bottom { transform: rotateX(180deg);  transition-delay: .25s; }
-.envelope-stage.is-open .ef-left   { transform: rotateY(180deg);  transition-delay: .15s; }
-.envelope-stage.is-open .ef-right  { transform: rotateY(-180deg); transition-delay: .15s; }
+.envelope-stage.is-open .ef-bottom { transform: rotateX(180deg); }
+.envelope-stage.is-open .ef-left   { transform: rotateY(180deg); }
+.envelope-stage.is-open .ef-right  { transform: rotateY(-180deg); }
+.envelope-stage.is-open .ef::before { opacity: 1; }
 
 /* Каллиграфия на верхнем клапане */
 .env-caption {
@@ -146,7 +162,17 @@ img { display: block; max-width: 100%; }
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
   50%      { transform: translate(-50%, -50%) scale(1.035); }
 }
-.envelope-stage.is-open .seal { transform: translate(-50%, -50%) scale(0); opacity: 0; animation: none; }
+/* при открытии печать прожимается, отскакивает и падает вниз за экран */
+.envelope-stage.is-open .seal {
+  animation: sealDrop 1.05s cubic-bezier(.45, .05, .55, 1) forwards;
+}
+@keyframes sealDrop {
+  0%   { transform: translate(-50%, -50%) scale(1)   rotate(0deg);  opacity: 1; animation-timing-function: cubic-bezier(.3, 0, .3, 1); }
+  16%  { transform: translate(-50%, -48%) scale(.86) rotate(-3deg); opacity: 1; animation-timing-function: cubic-bezier(.2, 0, .5, 1); }  /* прожатие */
+  34%  { transform: translate(-50%, -72%) scale(1.05) rotate(7deg); opacity: 1; animation-timing-function: cubic-bezier(.55, 0, .95, 1); } /* отскок вверх */
+  85%  { opacity: 1; }
+  100% { transform: translate(-50%, 105vh) scale(.8) rotate(40deg); opacity: 0; } /* падение за экран */
+}
 
 /* ============================================================
    2. HERO (после конверта)
